@@ -1,21 +1,21 @@
 {
-  "name": "parcel",
+  "name": "goit-js-hw-09",
   "version": "2.0.0",
   "description": "",
-  "homepage": "https://KHARKIVSKA-KURKUMA.github.io/parcel",
+  "homepage": "https://KHARKIVSKA-KURKUMA.github.io/goit-js-hw-09",
   "scripts": {
     "start": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /parcel/"
+    "build": "parcel build src/*.html --public-url /goit-js-hw-09/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KHARKIVSKA-KURKUMA/parcel.git"
+    "url": "git+https://github.com/KHARKIVSKA-KURKUMA/goit-js-hw-09.git"
   },
   "keywords": [],
   "author": "Alexander Repeta <alexander.repeta@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/KHARKIVSKA-KURKUMA/parcel/issues"
+    "url": "https://github.com/KHARKIVSKA-KURKUMA/goit-js-hw-09/issues"
   },
   "dependencies": {
     "modern-normalize": "^1.1.0"
