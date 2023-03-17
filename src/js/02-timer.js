@@ -12,50 +12,64 @@ const refs = {
 };
 refs.startBtn.disabled = true;
 let timer = null;
-flatpickr('#datetime-picker', {
+
+const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    const selectedDate = selectedDates[0];
-    const now = new Date();
-    if (selectedDate <= now) {
-      // window.alert('Please choose a date in the future');
-      Notiflix.Notify.failure('Please choose a date in the future');
-    } else {
+    console.log(selectedDates[0]);
+    if (selectedDates[0] < new Date()) {
+      refs.startBtn.disabled = true;
+      Notiflix.Notify.failure('Please choose a date in the future!');
+      return;
+    }
+    if (selectedDates[0] > new Date()) {
       refs.startBtn.disabled = false;
     }
+
+    refs.startBtn.addEventListener('click', () => {
+      timer = setInterval(() => {
+        const differenceInTime = selectedDates[0] - new Date();
+
+        if (differenceInTime < 1000) {
+          clearInterval(timer);
+        }
+        const result = convertMs(differenceInTime);
+        viewOfTimer(result);
+      }, 1000);
+    });
   },
-});
+};
 
-refs.startBtn.addEventListener('click', startTimer);
+flatpickr('#datetime-picker', options);
 
-function startTimer() {
-  timer = setInterval(() => {
-    const chosenTime = new Date(refs.input.value.replace(/-/g, '/')).getTime();
-    const now = new Date().getTime();
-    const timeLeft = chosenTime - now;
-    console.log(timeLeft);
-    const { days, hours, minutes, seconds } = convertMs(timeLeft);
-
-    refs.d.innerHTML = days < 10 ? addLeadingZero(days) : days;
-    refs.h.innerHTML = hours < 10 ? addLeadingZero(hours) : hours;
-    refs.m.innerHTML = minutes < 10 ? addLeadingZero(minutes) : minutes;
-    refs.s.innerHTML = seconds < 10 ? addLeadingZero(seconds) : seconds;
-
-    if (timeLeft < 1000) {
-      clearInterval(timer);
-      refs.startBtn.disabled = true;
-    }
-  }, 1000);
+function viewOfTimer({ days, hours, minutes, seconds }) {
+  refs.d.textContent = `${days}`;
+  refs.h.textContent = `${hours}`;
+  refs.m.textContent = `${minutes}`;
+  refs.s.textContent = `${seconds}`;
 }
 
 function addLeadingZero(value) {
-  const stringValue = String(value);
-  return stringValue.padStart(2, '0');
+  return String(value).padStart(2, '0');
 }
 
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = addLeadingZero(Math.floor(ms / day));
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+  const seconds = addLeadingZero(
+    Math.floor((((ms % day) % hour) % minute) / second)
+  );
+  return { days, hours, minutes, seconds };
+}
 function convertMs(ms) {
   const second = 1000;
   const minute = second * 60;
@@ -68,9 +82,3 @@ function convertMs(ms) {
 
   return { days, hours, minutes, seconds };
 }
-
-// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
-// console.log(refs.startBtn);
-// console.log(refs.days);
