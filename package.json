@@ -18,7 +18,10 @@
     "url": "https://github.com/KHARKIVSKA-KURKUMA/goit-js-hw-10/issues"
   },
   "dependencies": {
+    "@handlebars/parser": "^2.1.0",
     "flatpickr": "^4.6.13",
+    "handlebars": "^4.7.7",
+    "lodash.debounce": "^4.0.8",
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.6"
   },
