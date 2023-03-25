@@ -18,3 +18,14 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+h1 {
+  font-size: 52px;
+  background: -webkit-linear-gradient(blue, yellow);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding-left: 0;
+}
