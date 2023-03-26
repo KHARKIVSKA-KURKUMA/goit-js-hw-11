@@ -5,7 +5,7 @@ async function fetchCountries(name) {
   );
   // console.log(response.json());
   if (!response.ok) {
-    return [];
+    return Promise.reject(new Error('Country not found'));
   }
   return response.json();
 }
