@@ -53,8 +53,7 @@ body {
   overflow: hidden;
   img {
     width: 100%;
-    height: auto;
-    max-height: 230px;
+    height: 230px;
     display: block;
   }
   .info {
@@ -82,8 +81,7 @@ body {
     background-color: #3e8e41;
   }
   &:disabled {
-    border: 1px solid #999999;
-    background-color: #cccccc;
-    color: #666666;
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 }
