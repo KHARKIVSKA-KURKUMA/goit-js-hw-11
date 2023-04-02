@@ -6,71 +6,94 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const refs = {
   gallery: document.querySelector('.gallery'),
-  inp: document.querySelector('.search-form'),
-  btn: document.querySelector('.load-more'),
+  searchForm: document.querySelector('.search-form'),
+  loadMore: document.querySelector('.load-more'),
 };
 
-refs.btn.disabled = false;
-let searchQuery = '';
-let currentPage = 1;
+refs.loadMore.classList.add('is-hidden');
+let currentValue = '';
+let pages = 1;
 let currentHits = 0;
+let secondRequest = false;
+let lightbox = new SimpleLightbox('.photo-card a', {
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+});
 
-refs.inp.addEventListener('submit', onSubmitSearch);
-refs.btn.addEventListener('click', onClickLoadMore);
+refs.searchForm.addEventListener('submit', onSearch);
+refs.loadMore.addEventListener('click', onClickLoadMore);
+
+async function onSearch(e) {
+  e.preventDefault();
+  const searchQuery = e.currentTarget.searchQuery.value.trim();
+  if (searchQuery === '') {
+    refs.gallery.innerHTML = '';
+    secondRequest = false;
+    pages = 1;
+    refs.loadMore.classList.add('is-hidden');
+    alertNoEmptySearch();
+    return;
+  }
+  if (searchQuery !== currentValue) {
+    refs.loadMore.classList.add('is-hidden');
+    currentValue = searchQuery;
+    pages = 1;
+    refs.gallery.innerHTML = '';
+    secondRequest = false;
+  }
+  onClickLoadMore();
+}
+
+async function onClickLoadMore() {
+  refs.loadMore.classList.add('is-hidden');
+  const response = await fetchImage(currentValue, pages);
+  const { hits, total } = response;
+  currentHits = hits.length;
+
+  if (currentHits > 0) {
+    refs.loadMore.classList.remove('is-hidden');
+    renderCardImage(hits);
+    lightbox.refresh();
+    if (pages === 1) {
+      alertImagesFound(total);
+    }
+    pages += 1;
+  }
+  if (currentHits === 0) {
+    if (pages === 1) {
+      alertNoImagesFound();
+    }
+    if (pages > 1 && secondRequest === false) {
+      alertEndOfSearch();
+      secondRequest = true;
+    }
+  }
+}
 
 function renderCardImage(data) {
   const markup = data.map(item => ArticleTpI(item)).join('');
   refs.gallery.insertAdjacentHTML('beforeend', markup);
 }
 
-async function onSubmitSearch(e) {
-  e.preventDefault();
-  currentPage = 1;
-  searchQuery = e.currentTarget.searchQuery.value;
-  if (searchQuery === '') {
-    return;
-  }
-  const response = await fetchImage(searchQuery, currentPage);
-  currentHits = response.hits.length;
-  if (response.totalHits > 40) {
-    refs.btn.disabled = false;
-  } else {
-    refs.btn.disabled = true;
-  }
-  try {
-    if (response.totalHits > 0) {
-      Notiflix.Notify.success(`Hooray! We found ${response.totalHits} images.`);
-      refs.gallery.innerHTML = '';
-      renderCardImage(response.hits);
-      lightbox.refresh();
-    }
-    if (response.totalHits === 0) {
-      refs.gallery.innerHTML = '';
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-      refs.btn.disabled = true;
-    }
-  } catch (error) {
-    console.log(error);
-  }
+function alertImagesFound(total) {
+  Notiflix.Notify.success(`Hooray! We found ${total} images.`);
 }
 
-let lightbox = new SimpleLightbox('.photo-card a', {
-  captionsData: 'alt',
-  captionPosition: 'bottom',
-  captionDelay: 200,
-});
+function alertNoEmptySearch() {
+  Notiflix.Notify.failure(
+    'The search string cannot be empty. Please specify your search query.'
+  );
+}
 
-async function onClickLoadMore() {
-  currentPage += 1;
-  const res = await fetchImage(searchQuery, currentPage);
-  renderCardImage(res.hits);
-  lightbox.refresh();
-  currentHits += res.hits.length;
-  console.log(currentHits);
-  console.log(res.totalHits);
-  if (currentHits === res.totalHits) {
-    refs.btn.disabled = true;
-  }
+function alertNoImagesFound() {
+  Notiflix.Notify.failure(
+    'Sorry, there are no images matching your search query. Please try again.'
+  );
+}
+
+function alertEndOfSearch() {
+  Notiflix.Notify.warning(
+    "We're sorry, but you've reached the end of search results."
+  );
 }
